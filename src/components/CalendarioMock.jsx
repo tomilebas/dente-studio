@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { C, F } from '../lib/constants'
 
@@ -33,6 +33,13 @@ export default function CalendarioMock() {
   const [horario, setHorario] = useState(null)
   const [confirmado, setConfirmado] = useState(false)
   const [especialista, setEspecialista] = useState('Dra. Valentina Ríos')
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const primerDia = new Date(year, month, 1).getDay()
   const primerDiaLun = (primerDia + 6) % 7
@@ -93,10 +100,10 @@ export default function CalendarioMock() {
           backgroundColor: C.blanco, borderRadius: '16px',
           border: `1px solid ${C.grisCla}`,
           boxShadow: '0 20px 60px rgba(46,64,54,0.08)',
-          padding: '4rem 2rem',
+          padding: isMobile ? '3rem 1.25rem' : '4rem 2rem',
           textAlign: 'center',
           maxWidth: '860px', margin: '0 auto',
-          minHeight: '460px',
+          minHeight: isMobile ? 'auto' : '460px',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.25rem',
         }}
       >
@@ -151,7 +158,7 @@ export default function CalendarioMock() {
       {/* Especialista selector */}
       <div style={{
         borderBottom: `1px solid ${C.grisCla}`,
-        padding: '1.25rem 2rem',
+        padding: isMobile ? '1rem' : '1.25rem 2rem',
         display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
       }}>
         <span style={{ fontFamily: F.sans, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.gris }}>
@@ -177,9 +184,14 @@ export default function CalendarioMock() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', minHeight: '420px' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: isMobile ? 'auto' : '420px' }}>
         {/* Calendar panel */}
-        <div style={{ flex: '0 0 55%', padding: '2rem', borderRight: `1px solid ${C.grisCla}` }}>
+        <div style={{
+          flex: isMobile ? '1 1 auto' : '0 0 55%',
+          padding: isMobile ? '1.25rem 1rem' : '2rem',
+          borderRight: isMobile ? 'none' : `1px solid ${C.grisCla}`,
+          borderBottom: isMobile ? `1px solid ${C.grisCla}` : 'none',
+        }}>
           {/* Month nav */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem' }}>
             <button style={navBtnStyle} onClick={prevMonth}
@@ -255,7 +267,7 @@ export default function CalendarioMock() {
         </div>
 
         {/* Time slot panel — always visible */}
-        <div style={{ flex: '0 0 45%', padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: isMobile ? '1 1 auto' : '0 0 45%', padding: isMobile ? '1.25rem 1rem' : '2rem', display: 'flex', flexDirection: 'column' }}>
           <AnimatePresence mode="wait">
             {!diaSeleccionado ? (
               <motion.div
